@@ -1,29 +1,23 @@
+// Select html elements
 const start = document.getElementById("start");
+const quiz = document.getElementById("quiz");
+const question = document.getElementById("question");
+const counter = document.getElementById("counter");
+const timeGauge = document.getElementById("timeGauge");
+const choiceA = document.getElementById("A");
+const choiceB = document.getElementById("B");
+const choiceC = document.getElementById("C");
+const progress = document.getElementById("pregress");
+const scoreDiv = document.getElementById("scoreContainer");
 
-const start = document.getElementById("quiz");
-
-const start = document.getElementById("question");
-
-const start = document.getElementById("container");
-
-const start = document.getElementById("timeLine");
-
-
-const start = document.getElementById("A");
-const start = document.getElementById("B");
-const start = document.getElementById("C");
-
-const start = document.getElementById("pregress");
-
-const start = document.getElementById("scoreContainer");
-
+// Create array of quiz questions
 let questions = [
-    {
+    { 
         question : "Commonly used data types include: ",  
         choiceA : "strings",
         choiceB : "Booleans",
         choiceC : "alerts",
-         choiceD : "numbers",
+        choiceD : "numbers",
         correct : "C"
     },
 
@@ -55,74 +49,111 @@ let questions = [
        },
 
        {
-        question : "A very useful tool used development and debugging for printing content to the debugger is: ",  
+        question : "A very useful tool used in development and debugging for printing content to the debugger is: ",  
         choiceA : "Javascript",
         choiceB : "terminal bash",
         choiceC : "for-loops",
         choiceD : "console log",
         correct : "D"
-       },
+       }
+    ];
 
-]
+    const lastQuestion = questions.length - 1;
+    let runningQuestion = 0;
+    let count = 0;
+    const questionTime = 10; // 10 secs
+    const gaugeWidth = 150;
+    const gaugeUnit = gaugeWidth / questionTime;
+    let TIMER;
+    let score = 0;
 
-let lasQuestionIndex = questions.length - 1;
-let runningQuestionIndex = 0;
-
-    function giveQuestion(){
-        let q = questions[runningQuestionsIndex];
-            question.innerHTML = "<p>" + q.question + "<p>";
+    // Create function to display questions
+    function renderQuestion(){
+        let q = questions[runningQuestion];
+            question.innerHTML = "<p>" + q.question + "</p>";
             choiceA.innerHTML = q.choiceA;
             choiceB.innerHTML = q.choiceB;
             choiceC.innerHTML = q.choiceC;
-    }
+    } 
 
-    runningQuestionIndex = 0;
-    giveQuestion()
-
-    runningQuestionIndex++;
-    giveQuestion()
-
-    function progressRender() {
-        for(let qIndex = 0; qIndex <=lastQuestionIndex; qIndex++) {
-            progress.innerHTML += "<section  id=" +   + "></section>";  
+    start.addEventListener("click", startQuiz);
+    
+        // Start quiz
+    function startQuiz() {
+        // Hide start button    
+            start.style.display = "none";
+            renderQuestion();
+            quiz.style.display = "block"; 
+            renderCounter();
+            TIMER = setInterval(renderCounter, 1000);
         }
-    }
 
-    function answerIsCorrect() {
-        document.getElementById(runningQuestionIndex).style.backgroundColor = "green"
-    }
 
-    function answerIsWrong() {
-        document.getElementById(runningQuestionIndex).style.backgroundColor = "red"; 
-    }
-
-    const questionTime = 10;
-    const gaugeWidth = 150;
-    let count = 0;
-    const gaugeProgressUnit = gaugeWidth/questionTime;
-
-        function counterRender() {
-            if(count <= questionTime) {
-                counter.innerHTML = count;
-                timeGauge.style.width = gaugeProgressUnit * count + "px";
-                count++;
-            } else {
-                count = 0;
-                answerIsWrong();
-                    if(runningQuestionIndex < lastQuestionIndex) {
-                        runningQuestionIndex++;
-                        questionRender();
-                    } 
-                    else {clearInterval(TIMER);
-                        scoreRender();
-                    }
+        function renderProgress() {
+            for(let qIndex = 0; qIndex <= lastQuestion; 
+                qIndex++) {
+                    progress.innerHTML += "<div  class='progress' id="+ qIndex +"></div>";  
             }
         }
-    let TIMER = 
-        setInterval(counterRender, 1000);
-        // Stop clock
-        setInterval()
-        clearInterval(TIMER);
+                renderProgress();
 
-        // Check answers
-        function checkAnswer(answer) {}
+
+
+        // Set up variables and function for counter
+        
+
+        function renderCounter() {
+            if(count <= questionTime) {
+                counter.innerHTML = count;
+                timeGauge.style.width = gaugeUnit * count + "px";
+                count++;
+            }
+            else {
+                count = 0;
+                // Change progress bar
+                answerIsWrong(); 
+                if(runningQuestion < lastQuestion) {
+                    runningQuestion++;
+                    renderQuestion();
+                } else {
+                    clearInterval(TIMER);
+                    scoreRender();
+                }
+            }
+        }
+
+        function checkAnswer(answer) {
+            if(answer == questions[runningQuestion].correct) {
+                // correct answer
+                score++;
+                answerIsCorrect();
+            } else {
+                answerIsWrong();
+            }
+            count = 0;
+            if(runningQuestion < lastQuestion) {
+                runningQuestion++;
+                renderQuestion();
+            } else {
+                //End quiz
+                clearInterval(TIMER);
+                scoreRender();
+            }
+        }
+
+
+        function answerIsCorrect() {
+            document.getElementById(runningQuestion).style.backgroundColor = "#0f0";
+        }
+
+        function answerIsWrong() {
+            document.getElementById(runningQuestion).style.backgroundColor = "#f00";
+        }
+
+        function scoreRender(){
+            scoreDiv.style.display = "block";
+
+            // Calculate status of all questions
+            const scorePercent = Math.round(100* score/questions.length);
+            scoreDiv.innerHTML = "<p>"+ scorePercent+"%</p>";
+        }
