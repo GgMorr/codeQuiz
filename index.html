@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/style.css">
+    <title>Coding Quiz</title>
+</head>
+
+<body>
+    <header>
+        <h1 class="quizTitle">Coding Quiz Challenge</h1>
+        <p>Try to answer the following code-related questions within the time limit.<br>
+        Keep in mind that incorrect answers will penalize your score/time <br>
+        by 10 seconds.</p>
+    </header>
+    
+    
+    <section id="start">Start Quiz</section>
+    
+    <section class="button">
+        <button>Start</button>
+    </section>
+    
+    <section id"quiz" style="display : none;">
+    
+        <section id="question">
+            <p>Question</p>
+        </section>
+
+    <section id="timer">
+        <section id="counter"> 10 </section>
+        <section id="usedLine"></section>
+        <section id="timeLine"></section>
+    </section>
+
+    <section id="choices">
+        <section class="choice" id="A" onclick="answer('A')"></section>
+        <section class="choice" id="B" onclick="answer('B')"></section>
+        <section class="choice" id="C" onclick="answer('C')"></section>
+    </section>
+
+    <section id="progress">
+        <section class="prog"></section>
+    </section>
+    
+    <section id="scoreContainer" style="display : none;">
+        <p>50%</p>
+    </section>
+    
+    <!-- Link to script file -->
+    <script src="script.js"></script>
+
+</body>
+</html>
