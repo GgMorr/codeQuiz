@@ -1,159 +1,140 @@
-// Select html elements
-const start = document.getElementById("start");
-const quiz = document.getElementById("quiz");
-const question = document.getElementById("question");
-const counter = document.getElementById("counter");
-const timeGauge = document.getElementById("timeGauge");
-const choiceA = document.getElementById("A");
-const choiceB = document.getElementById("B");
-const choiceC = document.getElementById("C");
-const progress = document.getElementById("pregress");
-const scoreDiv = document.getElementById("scoreContainer");
+const startButton = document.getElementById("start-btn")
+    startButton.addEventListener("click", startQuiz) //Listen for click and execute startQuiz function
+const nextButton = document.getElementById('next-btn')
+    nextButton.addEventListener('click', () => {
+        currentQuestionIndex++
+        setNextQuestion()
+    }
+    )
+const questionContainerEl = document.getElementById("question-container")
+const questionEl = document.getElementById('question')
+const answerButtonEl = document.getElementById('answer-buttons')
 
-// Create array of quiz questions
-let questions = [
-    { 
-        question : "Commonly used data types include: ",  
-        choiceA : "strings",
-        choiceB : "Booleans",
-        choiceC : "alerts",
-        choiceD : "numbers",
-        correct : "C"
-    },
+// Construct timer variables
+const timerEl = document.getElementById("timer")
 
+ 
+
+// End of timer
+
+let shuffledQuestions, currentQuestionIndex
+
+
+function startQuiz() {
+    console.log("Started")
+    startButton.classList.add("hide") //Hide start button when quiz begins
+    shuffledQuestions = questions.sort(() => Math.random() - .5) //Shuffle questions
+    currentQuestionIndex = 0 //Set current index to 0
+    questionContainerEl.classList.remove("hide")
+    setNextQuestion()
+}
+
+
+
+function setNextQuestion() {
+    resetState()
+    showQuestion(shuffledQuestions[currentQuestionIndex])
+}
+
+
+function showQuestion(question) {
+    questionEl.innerText = question.question
+    question.answers.forEach(answer => {
+        const button = document.createElement('button')
+        button.innerText = answer.text
+        button.classList.add('btn')
+            if (answer.correct) {
+                button.dataset.correct = answer.correct
+            }
+        button.addEventListener('click', selectAnswer)
+        answerButtonEl.appendChild(button)
+    })
+}
+
+function resetState(){
+    clearStatusClass(document.body)
+    nextButton.classList.add('hide')
+        while (answerButtonEl.firstChild) {
+            answerButtonEl.removeChild(answerButtonEl.firstChild)
+        }
+}
+
+
+function selectAnswer(e) {
+    const selectedButton = e.target
+    const correct = selectedButton.dataset.correct
+        setStatusClass(document.body, correct)
+        Array.from(answerButtonEl.children).forEach(button => {
+            setStatusClass(button, button.dataset.correct)
+        })
+        if (shuffledQuestions.length > currentQuestionIndex + 1) {
+                nextButton.classList.remove('hide')
+        } else {
+            startButton.innerText = 'Restart'
+            startButton.classList.remove('hide')
+        } 
+}
+
+function setStatusClass(element, correct) {
+    clearStatusClass(element)
+        if (correct) {
+            element.classList.add('correct')
+        } else {
+            element.classList.add('wrong')
+        }
+} 
+
+
+function clearStatusClass(element) {
+    element.classList.remove('correct')
+    element.classList.remove('wrong')
+}
+
+
+const questions = [
     {
-        question : "The condition in an if-else statement is enclosed with: ",  
-        choiceA : "quotes",
-        choiceB : "curly brackets",
-        choiceC : "parenthesis",
-        choiceD : "square brackets",
-        correct : "B"
-       },
-
-       {
-        question : "Arrays in Javascript can be used to store: ",  
-        choiceA : "numbers & strings",
-        choiceB : "other arrays",
-        choiceC : "Booleans",
-        choiceD : "all of the above",
-        correct : "D"
-       },
-
-       {
-        question : "String values must be enclosed within ______ when being assigned to variables.: ",  
-        choiceA : "commas",
-        choiceB : "curly brackets",
-        choiceC : "quotes",
-        choiceD : "parenthesis",
-        correct : "C"
-       },
-
-       {
-        question : "A very useful tool used in development and debugging for printing content to the debugger is: ",  
-        choiceA : "Javascript",
-        choiceB : "terminal bash",
-        choiceC : "for-loops",
-        choiceD : "console log",
-        correct : "D"
-       }
-    ];
-
-    const lastQuestion = questions.length - 1;
-    let runningQuestion = 0;
-    let count = 0;
-    const questionTime = 10; // 10 secs
-    const gaugeWidth = 150;
-    const gaugeUnit = gaugeWidth / questionTime;
-    let TIMER;
-    let score = 0;
-
-    // Create function to display questions
-    function renderQuestion(){
-        let q = questions[runningQuestion];
-            question.innerHTML = "<p>" + q.question + "</p>";
-            choiceA.innerHTML = q.choiceA;
-            choiceB.innerHTML = q.choiceB;
-            choiceC.innerHTML = q.choiceC;
-    } 
-
-    start.addEventListener("click", startQuiz);
-    
-        // Start quiz
-    function startQuiz() {
-        // Hide start button    
-            start.style.display = "none";
-            renderQuestion();
-            quiz.style.display = "block"; 
-            renderCounter();
-            TIMER = setInterval(renderCounter, 1000);
-        }
-
-
-        function renderProgress() {
-            for(let qIndex = 0; qIndex <= lastQuestion; 
-                qIndex++) {
-                    progress.innerHTML += "<div  class='progress' id="+ qIndex +"></div>";  
-            }
-        }
-                renderProgress();
-
-
-
-        // Set up variables and function for counter
-        
-
-        function renderCounter() {
-            if(count <= questionTime) {
-                counter.innerHTML = count;
-                timeGauge.style.width = gaugeUnit * count + "px";
-                count++;
-            }
-            else {
-                count = 0;
-                // Change progress bar
-                answerIsWrong(); 
-                if(runningQuestion < lastQuestion) {
-                    runningQuestion++;
-                    renderQuestion();
-                } else {
-                    clearInterval(TIMER);
-                    scoreRender();
-                }
-            }
-        }
-
-        function checkAnswer(answer) {
-            if(answer == questions[runningQuestion].correct) {
-                // correct answer
-                score++;
-                answerIsCorrect();
-            } else {
-                answerIsWrong();
-            }
-            count = 0;
-            if(runningQuestion < lastQuestion) {
-                runningQuestion++;
-                renderQuestion();
-            } else {
-                //End quiz
-                clearInterval(TIMER);
-                scoreRender();
-            }
-        }
-
-
-        function answerIsCorrect() {
-            document.getElementById(runningQuestion).style.backgroundColor = "#0f0";
-        }
-
-        function answerIsWrong() {
-            document.getElementById(runningQuestion).style.backgroundColor = "#f00";
-        }
-
-        function scoreRender(){
-            scoreDiv.style.display = "block";
-
-            // Calculate status of all questions
-            const scorePercent = Math.round(100* score/questions.length);
-            scoreDiv.innerHTML = "<p>"+ scorePercent+"%</p>";
-        }
+        question: 'Commonly used data types DO NOT include:',
+        answers: [
+            {text: 'alerts', correct: true},
+            {text: 'strings', correct: false},
+            {text: 'Booleans', correct: false},
+            {text: 'numbers', correct: false},
+        ]
+    },
+    {
+        question: 'The condition in an IF/ELSE statement is enclosed with:',
+        answers: [
+            {text: 'quotes', correct: false},
+            {text: 'curly brackets', correct: true},
+            {text: 'parenthesis', correct: false},
+            {text: 'sqare brackets', correct: false},
+        ]
+    },
+    {
+        question: 'String values must be enclosed within ______ when being assigned to variables:',
+        answers: [
+            {text: 'commas', correct: false},
+            {text: 'curly brackets', correct: false},
+            {text: 'quotes', correct: true},
+            {text: 'parenthesis', correct: false},
+        ]
+    },
+    {
+        question: 'Arrays in Javascript can be used to store:',
+        answers: [
+            {text: 'numbers and strings', correct: false},
+            {text: 'other arrays', correct: false},
+            {text: 'Booleans', correct: false},
+            {text: 'all of the above', correct: true},
+        ]
+    },
+    {
+        question: 'A very useful tool used during development and debugging for printing content to the debugger is:',
+        answers: [
+            {text: 'Javascript', correct: false},
+            {text: 'terminal bash', correct: false},
+            {text: 'for loops', correct: false},
+            {text: 'console.log', correct: true},
+        ]
+    }
+]
